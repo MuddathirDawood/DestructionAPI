@@ -10,6 +10,7 @@ const app = express()
 const router = express.Router()
 
 app.set('Port', process.env.PORT)
+app.use(express.static('view'))
 app.use((req, res, next)=>{
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', '*');
@@ -21,6 +22,15 @@ app.use((req, res, next)=>{
 app.use(router, cors(), express.json(), bodyParser.urlencoded({ extended: true }));
 
 app.listen(app.get('Port'), ()=>{console.log(`Server is running on port ${app.get('Port')}`);})
+
+
+
+/* =========================================================== WELCOME PAGE ==================================================================== */
+app.get('/', (req, res)=>{
+    res.sendFile(__dirname + '/views/home.html')
+})
+
+
 
 /* =============================================================== ERAS ======================================================================== */
 router.get('/eras', (req, res)=>{
@@ -51,4 +61,149 @@ router.get('/weapons', (req, res)=>{
             weapons: results
         })
     })
+})
+
+
+
+/* =============================================================== USERS ======================================================================= */
+// --------------------- GET ALL USERS ---------------------- //
+router.get('/users', (req, res)=>{
+    const getAll = `
+        SELECT * FROM users
+    `
+
+    db.query(getAll, (err, results)=>{
+        if (err) throw err
+        res.json({
+            status: 200,
+            users: results
+        })
+    })
+})
+
+// --------------------- GET SINGLE USER ---------------------- //
+router.get('/users/:id', (req, res)=>{
+    const getSingle = `
+        SELECT * FROM users WHERE userID = ${req.params.id}
+    `
+
+    db.query(getSingle, (err, results)=>{
+        if (err) throw err
+        res.json({
+            status: 200,
+            user: results
+        })
+    })
+})
+
+// ---------------- REGISTER ---------------------- //
+router.post('/users', bodyParser.json(), (req, res)=>{
+    const body = req.body
+    const email = `
+        SELECT * FROM users WHERE emailAddress = ?
+    `
+
+    let emailC = {
+        emailAddress: body.emailAddress
+    }
+    db.query(email, emailC ,async(err ,results)=>{
+        if (err) throw err
+        if (results.length > 0) {
+            res.json({
+                status: 400,
+                msg: 'The provided email already exists'
+            })
+        } else {
+            let generateSalt = await bcrypt.genSalt()
+            body.password = await bcrypt.hash(body.password, generateSalt)
+            body.dateJoined = new Date().toISOString().slice(0, 10)
+
+            const add = `
+                INSERT INTO users(username, emailAddress, phone_number, password, dateJoined)
+                VALUES(?, ?, ?, ?, ?)
+            `
+
+            db.query(add, [body.username, body.emailAddress, body.phone_number, body.password, body.dateJoined], (err, results)=>{
+                if (err) throw err
+                res.json({
+                    status: 200,
+                    msg: 'Registration Successful'
+                })
+            })
+        }
+    })
+})
+
+
+// ------------------- LOGIN ---------------------- //
+router.patch('/users', bodyParser.json(), (req, res)=>{
+    const body = req.body
+    const login = `
+        SELECT * FROM users WHERE ?
+    `
+
+    let email = {
+        emailAddress: body.emailAddress
+    }
+    db.query(login, email, async(err, results)=>{
+        if (err) throw err
+        if (results.length === 0) {
+            res.json({
+                status: 400,
+                msg: 'Email Not Found'
+            })
+        } else {
+            if (await bcrypt.compare(body.password, results[0].password) == false) {
+                res.json({
+                    status: 404,
+                    msg: 'Password is Incorrect'
+                })
+            } else {
+                const payload = {
+                    user: {
+                        username: results[0].username,
+                        emailAddress: results[0].emailAddress,
+                        phone_number: results[0].phone_number,
+                        password: results[0].password,
+                        dateJoined: results[0].dateJoined
+                    }
+                };
+
+                jwt.sign(payload, process.env.jwtsecret, {expiresIn: "7d"}, (err, token)=>{
+                    if (err) throw err
+                    res.json({
+                        status: 200,
+                        user: results,
+                        token: token
+                    })
+                })
+            }
+        }
+    })
+})
+
+
+// --------------------- DELETE USER ---------------------- //
+router.delete('/users/:id', (req, res)=>{
+    const deleteUser = `
+        DELETE FROM users WHERE userID = ${req.params.id};
+        ALTER TABLE users AUTO_INCREMENT = 1;
+    `
+
+    db.query(deleteUser, (err, results)=>{
+        if (err) throw err
+        res.json({
+            status: 204,
+            msg: 'User Deleted Successfully'
+        })
+    })
+})
+
+
+// --------------------- EDIT USER ---------------------- //
+router.put('/users/:id', bodyParser.json(), (req, res)=>{
+    const edit = `
+        UPDATE users
+        SET username = ?, emailAddress = ?, phone_number = ?, password = ?
+    `
 })
