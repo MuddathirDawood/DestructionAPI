@@ -66,8 +66,50 @@ router.get('/eras/:id', (req, res)=>{
 })
 
 
-// ----------------------- EDIT ERA ---------------------- //
 
+// --------------------- GET WEAPONS FROM ERA ---------------------- //
+router.get('/eras/weapons/:id', (req, res)=>{
+    const getSingle = `
+        SELECT w.weapon_id,w.name FROM weapons w
+        INNER JOIN eras e
+        ON w.eraID = e.era_id
+        WHERE w.eraID = ${req.params.id}
+        LIMIT 3
+    `
+
+    db.query(getSingle, (err, results)=>{
+        if (err) throw err
+        res.json({
+            status: 200,
+            era_weapons: results
+        })
+    })
+})
+
+
+// ----------------------- EDIT ERA ---------------------- //
+router.put('/eras/:id', bodyParser.json(),(req, res)=>{
+    const edit = `
+       UPDATE eras
+       SET era_name = ?, era_period = ?, history = ?
+       WHERE era_id = ${req.params.id}
+    `
+
+    db.query(edit, [req.body.era_name, req.body.era_period, req.body.history], (err, results)=>{
+        if (err) throw err
+        if (req.params.id > 5) {
+            res.json({
+                status: 404,
+                msg: 'There is no era with that id'
+            })
+        } else {
+            res.json({
+                status: 204,
+                msg: "Era has been edited successfully"
+            })
+        }
+    })
+})
 
 
 /* ============================================================== WEAPONS ====================================================================== */
@@ -98,6 +140,44 @@ router.get('/weapons/:id', (req, res)=>{
         res.json({
             status: 200,
             weapon: results
+        })
+    })
+})
+
+
+
+// --------------------- ADD WEAPON ---------------------- //
+router.post('/weapons', bodyParser.json(), (req, res)=>{
+    const add = `
+        INSERT INTO weapons(name, description, image, eraID)
+        VALUES(?, ?, ?, ?)
+    `
+
+    db.query(add, [req.body.name, req.body.description, req.body.image, req.body.eraID], (err, results)=>{
+        if (err) throw err
+        res.json({
+            status: 204,
+            msg: 'Weapon added successfully'
+        })
+    })
+})
+
+
+
+// --------------------- GET WEAPONS BY ERA ---------------------- //
+router.get('/weapons/era/:eraID', (req, res)=>{
+    const getSingle = `
+        SELECT w.weapon_id,w.name,w.description,w.image,w.eraID,e.era_name FROM weapons w
+        INNER JOIN eras e
+        ON w.eraID = e.era_id
+        WHERE w.eraID = ${req.params.eraID}
+    `
+
+    db.query(getSingle, (err, results)=>{
+        if (err) throw err
+        res.json({
+            status: 200,
+            weapons_era: results
         })
     })
 })
@@ -164,7 +244,7 @@ router.post('/users', bodyParser.json(), (req, res)=>{
             db.query(add, [body.username, body.emailAddress, body.phone_number, body.password, body.dateJoined], (err, results)=>{
                 if (err) throw err
                 res.json({
-                    status: 200,
+                    status: 204,
                     msg: 'Registration Successful'
                 })
             })
