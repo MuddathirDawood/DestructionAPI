@@ -33,6 +33,7 @@ app.get('/', (req, res)=>{
 
 
 /* =============================================================== ERAS ======================================================================== */
+// --------------------- GET ALL ERAS ---------------------- //
 router.get('/eras', (req, res)=>{
     const getAll = `
         SELECT * FROM eras
@@ -48,7 +49,29 @@ router.get('/eras', (req, res)=>{
 })
 
 
+
+// --------------------- GET SINGLE ERA ---------------------- //
+router.get('/eras/:id', (req, res)=>{
+    const getSingle = `
+        SELECT * FROM eras WHERE era_id = ${req.params.id}
+    `
+
+    db.query(getSingle, (err, results)=>{
+        if (err) throw err
+        res.json({
+            status: 200,
+            era: results
+        })
+    })
+})
+
+
+// ----------------------- EDIT ERA ---------------------- //
+
+
+
 /* ============================================================== WEAPONS ====================================================================== */
+// --------------------- GET ALL WEAPONS ---------------------- //
 router.get('/weapons', (req, res)=>{
     const getAll = `
         SELECT * FROM weapons
@@ -63,6 +86,21 @@ router.get('/weapons', (req, res)=>{
     })
 })
 
+
+// --------------------- GET SINGLE WEAPON ---------------------- //
+router.get('/weapons/:id', (req, res)=>{
+    const getSingle = `
+        SELECT * FROM weapons WHERE weapon_id = ${req.params.id}
+    `
+
+    db.query(getSingle, (err, results)=>{
+        if (err) throw err
+        res.json({
+            status: 200,
+            weapon: results
+        })
+    })
+})
 
 
 /* =============================================================== USERS ======================================================================= */
@@ -201,9 +239,21 @@ router.delete('/users/:id', (req, res)=>{
 
 
 // --------------------- EDIT USER ---------------------- //
-router.put('/users/:id', bodyParser.json(), (req, res)=>{
+router.put('/users/:id', bodyParser.json(), async(req, res)=>{
+    const body = req.body
     const edit = `
         UPDATE users
         SET username = ?, emailAddress = ?, phone_number = ?, password = ?
+        WHERE userID = ${req.params.id}
     `
+
+    let generateSalt = await bcrypt.genSalt()
+    body.password = await bcrypt.hash(body.password, generateSalt)
+    db.query(edit, [body.username, body.emailAddress, body.phone_number, body.password], (err, results)=>{
+        if (err) throw err
+        res.json({
+            status: 204,
+            msg: 'User has been edited successfully'
+        })
+    })
 })
