@@ -70,7 +70,7 @@ router.get('/eras/:id', (req, res)=>{
 // --------------------- GET WEAPONS FROM ERA ---------------------- //
 router.get('/eras/weapons/:id', (req, res)=>{
     const getSingle = `
-        SELECT w.weapon_id,w.name FROM weapons w
+        SELECT w.weapon_id,w.name,e.era_id FROM weapons w
         INNER JOIN eras e
         ON w.eraID = e.era_id
         WHERE w.eraID = ${req.params.id}
@@ -336,4 +336,157 @@ router.put('/users/:id', bodyParser.json(), async(req, res)=>{
             msg: 'User has been edited successfully'
         })
     })
+})
+
+
+
+
+/* ============================================================ FAVOURITES ===================================================================== */
+// GET FAVOURITES
+router.get('/users/:id/fav', (req, res)=>{
+    const favouritesQ = `
+        SELECT favourites FROM users 
+        WHERE userID = ${req.params.id}
+    `
+
+    db.query(favouritesQ, (err, results)=>{
+        if (err) throw err
+
+        if (results[0].favourites !== null) {
+            res.json({
+                status: 200,
+                favourites: JSON.parse(results[0].favourites)
+            }) 
+        } else {
+            res.json({
+                status: 404,
+                message: 'There is no weapons in your favourites'
+            })
+        }
+    })
+})
+
+
+// ADD FAVOURITES
+router.post('/users/:id/fav', bodyParser.json(),(req, res)=>{
+    let bd = req.body
+    const favouritesQ = `
+        SELECT favourites FROM users 
+        WHERE userID = ${req.params.id}
+    `
+
+    db.query(favouritesQ, (err, results)=>{
+        if (err) throw err
+        if (results.length > 0) {
+            let favourites;
+            if (results[0].favourites == null) {
+                favourites = []
+            } else {
+                favourites = JSON.parse(results[0].favourites)
+            }
+            let weapon = {
+                "favouritesID" : favourites.length + 1,
+                "name": bd.name,
+                "description": bd.description,
+                "image": bd.image,
+                "eraID": bd.eraID
+            }
+            favourites.push(weapon);
+            const query = `
+                UPDATE users
+                SET favourites = ?
+                WHERE userID = ${req.params.id}
+            `
+
+            db.query(query , JSON.stringify(favourites), (err, results)=>{
+                if (err) throw err
+                res.json({
+                    status: 200,
+                    results: 'Weapon successfully added into favourites'
+                })
+            })
+        } else {
+            res.json({
+                status: 404,
+                results: 'There is no user with that id'
+            })
+        }
+    })
+})
+
+// DELETE favourites
+router.delete('/users/:id/favourites', (req,res)=>{
+    const delfavourites = `
+        SELECT favourites FROM users 
+        WHERE userID = ${req.params.id}
+    `
+    db.query(delfavourites, (err,results)=>{
+        if(err) throw err;
+        if(results.length >0){
+            const query = `
+                UPDATE users 
+                SET favourites = null 
+                WHERE userID = ${req.params.id}
+            `
+            db.query(query,(err,results)=>{
+                if(err) throw err
+                res.json({
+                    status:200,
+                    results: `Successfully cleared the favourites`
+                })
+            });
+        }else{
+            res.json({
+                status:400,
+                result: `There is no user with that ID`
+            });
+        }
+    })
+})
+
+router.delete('/users/:id/fav/:favouritesId', (req,res)=>{
+        const delSinglefavouritesProd = `
+            SELECT favourites FROM users 
+            WHERE userID = ${req.params.id}
+        `
+        db.query(delSinglefavouritesProd, (err,results)=>{
+            if(err) throw err;
+
+            if(results.length > 0){
+                if(results[0].favourites != null){
+
+                    const result = JSON.parse(results[0].favourites).filter((favourites)=>{
+                        return favourites.favouritesID != req.params.favouritesId;
+                    })
+                    result.forEach((favourites,i) => {
+                        favourites.favouritesID = i + 1
+                    });
+                    const query = `
+                        UPDATE users 
+                        SET favourites = ? 
+                        WHERE userID = ${req.params.id}
+                    `
+
+                    db.query(query, [JSON.stringify(result)], (err,results)=>{
+                        if(err) throw err;
+                        res.json({
+                            status:200,
+                            result: "Successfully deleted the selected weapon from favourites"
+                        });
+                    })
+
+                }else{
+                    res.json({
+                        status:400,
+                        result: "This user has an empty favourites"
+                    })
+                }
+            }else{
+                res.json({
+                    status:400,
+                    result: "There is no user with that id"
+                });
+            }
+        })
+
 })
