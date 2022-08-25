@@ -490,3 +490,7 @@ router.delete('/users/:id/fav/:favouritesId', (req,res)=>{
         })
 
 })
+
+app.use((req, res)=>{
+    res.sendFile(__dirname + '/views/404.html')
+})
