@@ -70,7 +70,7 @@ router.get('/eras/:id', (req, res)=>{
 // --------------------- GET WEAPONS FROM ERA ---------------------- //
 router.get('/eras/weapons/:id', (req, res)=>{
     const getSingle = `
-        SELECT w.weapon_id,w.name,e.era_id FROM weapons w
+        SELECT w.weapon_id,w.name,w.image,e.era_id FROM weapons w
         INNER JOIN eras e
         ON w.eraID = e.era_id
         WHERE w.eraID = ${req.params.id}
