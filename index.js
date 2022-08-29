@@ -224,10 +224,8 @@ router.post('/users', bodyParser.json(), (req, res)=>{
         SELECT * FROM users WHERE emailAddress = ?
     `
 
-    let emailC = {
-        emailAddress: body.emailAddress
-    }
-    db.query(email, emailC ,async(err ,results)=>{
+    let emailC = body.emailAddress
+    db.query(email, emailC , async(err ,results)=>{
         if (err) throw err
         if (results.length > 0) {
             res.json({
