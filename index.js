@@ -132,7 +132,10 @@ router.get('/weapons', (req, res)=>{
 // --------------------- GET SINGLE WEAPON ---------------------- //
 router.get('/weapons/:id', (req, res)=>{
     const getSingle = `
-        SELECT * FROM weapons WHERE weapon_id = ${req.params.id}
+        SELECT w.*,e.era_name FROM weapons w
+        INNER JOIN eras e
+        ON w.eraID = e.era_id
+        WHERE w.weapon_id = ${req.params.id}
     `
 
     db.query(getSingle, (err, results)=>{
