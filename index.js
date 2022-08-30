@@ -238,11 +238,11 @@ router.post('/users', bodyParser.json(), (req, res)=>{
             body.dateJoined = new Date().toISOString().slice(0, 10)
 
             const add = `
-                INSERT INTO users(username, emailAddress, phone_number, password, dateJoined)
-                VALUES(?, ?, ?, ?, ?)
+                INSERT INTO users(username, emailAddress, phone_number, password, profilePic, dateJoined)
+                VALUES(?, ?, ?, ?, ?, ?)
             `
 
-            db.query(add, [body.username, body.emailAddress, body.phone_number, body.password, body.dateJoined], (err, results)=>{
+            db.query(add, [body.username, body.emailAddress, body.phone_number, body.password, body.profilePic, body.dateJoined], (err, results)=>{
                 if (err) throw err
                 res.json({
                     status: 204,
@@ -284,6 +284,7 @@ router.patch('/users', bodyParser.json(), (req, res)=>{
                         emailAddress: results[0].emailAddress,
                         phone_number: results[0].phone_number,
                         password: results[0].password,
+                        profilePic: results[0].profilePic,
                         dateJoined: results[0].dateJoined
                     }
                 };
@@ -324,13 +325,13 @@ router.put('/users/:id', bodyParser.json(), async(req, res)=>{
     const body = req.body
     const edit = `
         UPDATE users
-        SET username = ?, emailAddress = ?, phone_number = ?, password = ?
+        SET username = ?, emailAddress = ?, phone_number = ?, password = ?, profilePic = ?
         WHERE userID = ${req.params.id}
     `
 
     let generateSalt = await bcrypt.genSalt()
     body.password = await bcrypt.hash(body.password, generateSalt)
-    db.query(edit, [body.username, body.emailAddress, body.phone_number, body.password], (err, results)=>{
+    db.query(edit, [body.username, body.emailAddress, body.phone_number, body.password, body.profilePic], (err, results)=>{
         if (err) throw err
         res.json({
             status: 204,
