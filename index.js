@@ -185,6 +185,22 @@ router.get('/weapons/era/:eraID', (req, res)=>{
     })
 })
 
+// --------------------- EDIT WEAPON ---------------------- //
+router.put('/weapons/:id', bodyParser.json(),(req, res)=>{
+    const edit = `
+       UPDATE weapons
+       SET name = ?, description = ?, image = ?
+       WHERE weapon_id = ${req.params.id}
+    `
+
+    db.query(edit, [req.body.name, req.body.description, req.body.image], (err, results)=>{
+        if (err) throw err
+            res.json({
+                status: 204,
+                msg: "Weapon has been edited successfully"
+            })
+    })
+})
 
 /* =============================================================== USERS ======================================================================= */
 // --------------------- GET ALL USERS ---------------------- //
@@ -483,7 +499,6 @@ router.delete('/users/:id/fav/:favouritesId', (req,res)=>{
                 });
             }
         })
-
 })
 
 app.use((req, res)=>{
