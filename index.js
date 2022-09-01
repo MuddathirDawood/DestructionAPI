@@ -410,7 +410,7 @@ router.post('/users/:id/fav', bodyParser.json(),(req, res)=>{
 })
 
 // DELETE favourites
-router.delete('/users/:id/favourites', (req,res)=>{
+router.delete('/users/:id/fav', (req,res)=>{
     const delfavourites = `
         SELECT favourites FROM users 
         WHERE userID = ${req.params.id}
@@ -486,6 +486,6 @@ router.delete('/users/:id/fav/:favouritesId', (req,res)=>{
 
 })
 
-app.use((req, res)=>{
-    res.sendFile(__dirname + '/views/404.html')
-})
+// app.use((req, res)=>{
+//     res.sendFile(__dirname + '/views/404.html')
+// })
