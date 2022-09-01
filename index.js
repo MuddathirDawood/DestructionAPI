@@ -379,7 +379,6 @@ router.post('/users/:id/fav', bodyParser.json(),(req, res)=>{
 
     db.query(favouritesQ, (err, results)=>{
         if (err) throw err
-        if (results.length > 0) {
             let favourites;
             if (results[0].favourites == null) {
                 favourites = []
@@ -404,15 +403,9 @@ router.post('/users/:id/fav', bodyParser.json(),(req, res)=>{
                 if (err) throw err
                 res.json({
                     status: 200,
-                    results: 'Weapon successfully added into favourites'
+                    msg: 'Weapon successfully added into favourites'
                 })
             })
-        } else {
-            res.json({
-                status: 404,
-                results: 'There is no user with that id'
-            })
-        }
     })
 })
 
