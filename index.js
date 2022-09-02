@@ -202,6 +202,23 @@ router.put('/weapons/:id', bodyParser.json(),(req, res)=>{
     })
 })
 
+
+// --------------------- DELETE WEAPON ---------------------- //
+router.delete('/weapons/:id', (req, res)=>{
+    const deleteUser = `
+        DELETE FROM weapons WHERE weapon_id = ${req.params.id};
+        ALTER TABLE weapons AUTO_INCREMENT = 1;
+    `
+
+    db.query(deleteUser, (err, results)=>{
+        if (err) throw err
+        res.json({
+            status: 204,
+            msg: 'Weapon Deleted Successfully'
+        })
+    })
+})
+
 /* =============================================================== USERS ======================================================================= */
 // --------------------- GET ALL USERS ---------------------- //
 router.get('/users', (req, res)=>{
