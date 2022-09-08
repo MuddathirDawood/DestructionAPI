@@ -8,7 +8,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
         body{
             background: url('https://i.postimg.cc/nhjnxNcF/10730876.jpg')no-repeat center center/cover;
-            min-height: 97vh;
+            min-height: 100vh;
             min-width: 98vw;
             z-index: 1;
             display: flex;
@@ -20,21 +20,248 @@
             z-index: 2;
             position: absolute;
         }
+
         h1{
-            position: relative;
-            margin: 0;
-            top: 200px;
-            left: 225px;
-            color: #d4d4d3;
-            font-family: 'Audiowide', cursive;
+          font-size: 30px;
+          color: #fff;
+          text-transform: uppercase;
+          font-weight: 300;
+          text-align: center;
+          margin-bottom: 15px;
         }
+        table{
+          width:100%;
+          table-layout: fixed;
+        }
+        .tbl-header{
+          background-color: rgba(255,255,255,0.3);
+         }
+        .tbl-content{
+          height:400px;
+          overflow-x:auto;
+          margin-top: 0px;
+          border: 1px solid rgba(255,255,255,0.3);
+        }
+        th{
+          padding: 20px 15px;
+          text-align: left;
+          font-weight: 500;
+          font-size: 15px;
+          color: #fff;
+          text-transform: uppercase;
+        }
+        td{
+          padding: 15px;
+          text-align: left;
+          vertical-align:middle;
+          font-weight: 300;
+          font-size: 14px;
+          color: #fff;
+          border-bottom: solid 1px rgba(255,255,255,0.1);
+        }
+
+        tr:hover{
+            background-color: #ffd9008f;
+        }
+
+        section{
+          margin: 50px;
+        }
+
+        #next{
+            border-top: 5px solid #fff;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        } 
+        ::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+        } 
+        ::-webkit-scrollbar-thumb {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+        }
+
+        /* LOGO */
+        #logo{
+          font-family: 'Audiowide', cursive;
+          color: #E5E4E2;
+          text-transform: uppercase;
+          position: relative;
+          font-size: 55px;
+          transition: all 1s;
+          animation: float 2.2s ease-in-out infinite;
+        }
+
+        #logo>span{
+          text-transform: none;
+          position: absolute;
+          color: #FFD700;
+          font-size: 25px;
+          width: 500px;
+          top: 85%;
+          left: 34%;
+          transition: all 1s;
+          animation: rotate 2s ease-in-out infinite;
+        }
+
+        @media (max-width: 800px){
+          #logo{
+            font-size: 44px;
+          }
+          #logo>span{
+            font-size: 25px;
+          }
+        }
+
+        @media (max-width: 600px){
+          #logo{
+            font-size: 32px;
+          }
+          #logo>span{
+            width: 200px;
+            left: 0;
+            font-size: 14px;
+          }
+        }
+
+        /* ANIMATION */
+        @keyframes float{
+        0% {
+		    transform: translateY(0px);
+    	}
+    	50% {
+    		transform: translateY(-10px);
+    	}
+    	100% {
+    		transform: translateY(0px);
+    	}
+        }
+
+        @keyframes rotate{
+            0%{
+                transform: rotateZ(0deg);
+            }
+            25%{
+                transform: rotateZ(3deg);
+            }
+            50%{
+                transform: rotateZ(0deg);
+            }
+            75%{
+                transform: rotateZ(-3deg);
+            }
+            100%{
+                transform: rotateZ(0deg);
+            }
+        }
+
     </style>
-    <title>API Welcome</title>
+    <title>API Endpoints</title>
 </head>
 <body>
     <div class="container">
-        <h1>WELCOME TO THE API OF</h1>
-        <img src="https://i.postimg.cc/50NxhyXG/Logo.png" alt="">
+        <h1 id="logo">Destruction <span>Weapons of Annihilation</span></h1>
+        <section>
+            <h1>ALL ENDPOINTS</h1>
+            <div class="tbl-header">
+            <table cellpadding="0" cellspacing="0" border="0">
+                <thead>
+                  <tr>
+                    <th>Method</th>
+                    <th>Route</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+            <div class="tbl-content">
+              <table cellpadding="0" cellspacing="0" border="0">
+                <tbody>
+                    <tr>
+                        <td>GET</td>
+                        <td>/users</td>
+                        <td>Gets All Users in the database</td>
+                    </tr>
+                    <tr>
+                        <td>GET</td>
+                        <td>/users/:id</td>
+                        <td>Gets a SINGLE User in the database</td>
+                    </tr>                                                            
+                    <tr>
+                        <td>POST</td>
+                        <td>/users</td>
+                        <td>Adds a User into the database also called the Register</td>
+                    </tr>
+                    <tr>
+                        <td>PATCH</td>
+                        <td>/users</td>
+                        <td>It reads the Users and finds the one with the details entered also called the Login</td>
+                    </tr>
+                    <tr>
+                        <td>DELETE</td>
+                        <td>/users/:id</td>
+                        <td>Deletes a single user from the database</td>
+                    </tr>
+                    <tr>
+                        <td>PUT</td>
+                        <td>/users/:id</td>
+                        <td>It edits anything pertaining to a single User</td>
+                    </tr>
+                    <tr>
+                        <td id="next">GET</td>
+                        <td id="next">/weapons</td>
+                        <td id="next">Gets All weapons in the database</td>
+                    </tr>
+                    <tr>
+                        <td>GET</td>
+                        <td>/weapons/:id</td>
+                        <td>Gets a SINGLE User in the database</td>
+                    </tr>                                                            
+                    <tr>
+                        <td>POST</td>
+                        <td>/weapons</td>
+                        <td>Adds a weapon into the database</td>
+                    </tr>
+                    <tr>
+                        <td>GET</td>
+                        <td>/weapons/era/:eraID</td>
+                        <td>Gets all weapons that corresponds with their respective eraID</td>
+                    </tr>                    
+                    <tr>
+                        <td>PUT</td>
+                        <td>/weapons/:id</td>
+                        <td>It edits anything pertaining to a single Weapon</td>
+                    </tr>                                        
+                    <tr>
+                        <td>DELETE</td>
+                        <td>/weapons/:id</td>
+                        <td>Deletes a single weapon from the database</td>
+                    </tr>
+                    <tr>
+                        <td id="next">GET</td>
+                        <td id="next">/eras</td>
+                        <td id="next">Gets All eras in the database</td>
+                    </tr>
+                    <tr>
+                        <td>GET</td>
+                        <td>/eras/:id</td>
+                        <td>Gets a SINGLE era in the database</td>
+                    </tr>                                                            
+                    <tr>
+                        <td>GET</td>
+                        <td>/eras/weapons/:id</td>
+                        <td>Gets 3 weapons from the selected era</td>
+                    </tr>
+                    <tr>
+                        <td>PUT</td>
+                        <td>/eras/:id</td>
+                        <td>It edits anything pertaining to a single era</td>
+                    </tr>                                                                                   
+                </tbody>
+              </div>
+            </table>
+          </section>    
     </div>
 </body>
 </html>
