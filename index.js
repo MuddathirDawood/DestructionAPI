@@ -92,11 +92,11 @@ router.get('/eras/weapons/:id', (req, res)=>{
 router.put('/eras/:id', bodyParser.json(),(req, res)=>{
     const edit = `
        UPDATE eras
-       SET era_name = ?, era_period = ?, history = ?
+       SET era_name = ?, era_period = ?, history = ?, history2 = ?, history3 = ?
        WHERE era_id = ${req.params.id}
     `
 
-    db.query(edit, [req.body.era_name, req.body.era_period, req.body.history], (err, results)=>{
+    db.query(edit, [req.body.era_name, req.body.era_period, req.body.history, req.body.history2, req.body.history3], (err, results)=>{
         if (err) throw err
         if (req.params.id > 5) {
             res.status(404).json({
