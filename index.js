@@ -5,6 +5,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const errorHandling = require('./middleware/errorhandling')
 
 const app = express()
 const router = express.Router()
@@ -41,7 +42,7 @@ router.get('/eras', (req, res)=>{
 
     db.query(getAll, (err, results)=>{
         if (err) throw err
-        res.json({
+        res.status(200).json({
             status: 200,
             eras: results
         })
@@ -58,7 +59,7 @@ router.get('/eras/:id', (req, res)=>{
 
     db.query(getSingle, (err, results)=>{
         if (err) throw err
-        res.json({
+        res.status(200).json({
             status: 200,
             era: results
         })
@@ -79,7 +80,7 @@ router.get('/eras/weapons/:id', (req, res)=>{
 
     db.query(getSingle, (err, results)=>{
         if (err) throw err
-        res.json({
+        res.status(200).json({
             status: 200,
             era_weapons: results
         })
@@ -98,12 +99,12 @@ router.put('/eras/:id', bodyParser.json(),(req, res)=>{
     db.query(edit, [req.body.era_name, req.body.era_period, req.body.history], (err, results)=>{
         if (err) throw err
         if (req.params.id > 5) {
-            res.json({
+            res.status(404).json({
                 status: 404,
                 msg: 'There is no era with that id'
             })
         } else {
-            res.json({
+            res.status(204).json({
                 status: 204,
                 msg: "Era has been edited successfully"
             })
@@ -121,7 +122,7 @@ router.get('/weapons', (req, res)=>{
 
     db.query(getAll, (err, results)=>{
         if (err) throw err
-        res.json({
+        res.status(200).json({
             status: 200,
             weapons: results
         })
@@ -140,7 +141,7 @@ router.get('/weapons/:id', (req, res)=>{
 
     db.query(getSingle, (err, results)=>{
         if (err) throw err
-        res.json({
+        res.status(200).json({
             status: 200,
             weapon: results
         })
@@ -158,7 +159,7 @@ router.post('/weapons', bodyParser.json(), (req, res)=>{
 
     db.query(add, [req.body.name, req.body.description, req.body.image, req.body.eraID], (err, results)=>{
         if (err) throw err
-        res.json({
+        res.status(204).json({
             status: 204,
             msg: 'Weapon added successfully'
         })
@@ -178,7 +179,7 @@ router.get('/weapons/era/:eraID', (req, res)=>{
 
     db.query(getSingle, (err, results)=>{
         if (err) throw err
-        res.json({
+        res.status(200).json({
             status: 200,
             weapons_era: results
         })
@@ -195,7 +196,7 @@ router.put('/weapons/:id', bodyParser.json(),(req, res)=>{
 
     db.query(edit, [req.body.name, req.body.description, req.body.image], (err, results)=>{
         if (err) throw err
-            res.json({
+            res.status(204).json({
                 status: 204,
                 msg: "Weapon has been edited successfully"
             })
@@ -212,7 +213,7 @@ router.delete('/weapons/:id', (req, res)=>{
 
     db.query(deleteUser, (err, results)=>{
         if (err) throw err
-        res.json({
+        res.status(204).json({
             status: 204,
             msg: 'Weapon Deleted Successfully'
         })
@@ -228,7 +229,7 @@ router.get('/users', (req, res)=>{
 
     db.query(getAll, (err, results)=>{
         if (err) throw err
-        res.json({
+        res.status(200).json({
             status: 200,
             users: results
         })
@@ -243,7 +244,7 @@ router.get('/users/:id', (req, res)=>{
 
     db.query(getSingle, (err, results)=>{
         if (err) throw err
-        res.json({
+        res.status(200).json({
             status: 200,
             user: results
         })
@@ -261,7 +262,7 @@ router.post('/users', bodyParser.json(), (req, res)=>{
     db.query(email, emailC , async(err ,results)=>{
         if (err) throw err
         if (results.length > 0) {
-            res.json({
+            res.status(400).json({
                 status: 400,
                 msg: 'The provided email already exists'
             })
@@ -277,7 +278,7 @@ router.post('/users', bodyParser.json(), (req, res)=>{
 
             db.query(add, [body.username, body.emailAddress, body.phone_number, body.password, body.profilePic, body.dateJoined], (err, results)=>{
                 if (err) throw err
-                res.json({
+                res.status(204).json({
                     status: 204,
                     msg: 'Registration Successful'
                 })
@@ -300,13 +301,13 @@ router.patch('/users', bodyParser.json(), (req, res)=>{
     db.query(login, email, async(err, results)=>{
         if (err) throw err
         if (results.length === 0) {
-            res.json({
+            res.status(400).json({
                 status: 400,
                 msg: 'Email Not Found'
             })
         } else {
             if (await bcrypt.compare(body.password, results[0].password) == false) {
-                res.json({
+                res.status(404).json({
                     status: 404,
                     msg: 'Password is Incorrect'
                 })
@@ -324,7 +325,7 @@ router.patch('/users', bodyParser.json(), (req, res)=>{
 
                 jwt.sign(payload, process.env.jwtsecret, {expiresIn: "7d"}, (err, token)=>{
                     if (err) throw err
-                    res.json({
+                    res.status(200).json({
                         status: 200,
                         user: results,
                         token: token
@@ -345,7 +346,7 @@ router.delete('/users/:id', (req, res)=>{
 
     db.query(deleteUser, (err, results)=>{
         if (err) throw err
-        res.json({
+        res.status(204).json({
             status: 204,
             msg: 'User Deleted Successfully'
         })
@@ -366,7 +367,7 @@ router.put('/users/:id', bodyParser.json(), async(req, res)=>{
     body.password = await bcrypt.hash(body.password, generateSalt)
     db.query(edit, [body.username, body.emailAddress, body.phone_number, body.password, body.profilePic], (err, results)=>{
         if (err) throw err
-        res.json({
+        res.status(204).json({
             status: 204,
             msg: 'User has been edited successfully'
         })
@@ -388,12 +389,12 @@ router.get('/users/:id/fav', (req, res)=>{
         if (err) throw err
 
         if (results[0].favourites !== null) {
-            res.json({
+            res.status(200).json({
                 status: 200,
                 favourites: JSON.parse(results[0].favourites)
             }) 
         } else {
-            res.json({
+            res.status(404).json({
                 status: 404,
                 message: 'There is no weapons in your favourites'
             })
@@ -434,7 +435,7 @@ router.post('/users/:id/fav', bodyParser.json(),(req, res)=>{
 
             db.query(query , JSON.stringify(favourites), (err, results)=>{
                 if (err) throw err
-                res.json({
+                res.status(200).json({
                     status: 200,
                     msg: 'Weapon successfully added into favourites'
                 })
@@ -458,13 +459,13 @@ router.delete('/users/:id/fav', (req,res)=>{
             `
             db.query(query,(err,results)=>{
                 if(err) throw err
-                res.json({
+                res.status(200).json({
                     status:200,
                     results: `Successfully cleared the favourites`
                 })
             });
         }else{
-            res.json({
+            res.status(400).json({
                 status:400,
                 result: `There is no user with that ID`
             });
@@ -497,20 +498,20 @@ router.delete('/users/:id/fav/:favouritesId', (req,res)=>{
 
                     db.query(query, [JSON.stringify(result)], (err,results)=>{
                         if(err) throw err;
-                        res.json({
+                        res.status(200).json({
                             status:200,
                             result: "Successfully deleted the selected weapon from favourites"
                         });
                     })
 
                 }else{
-                    res.json({
+                    res.status(400).json({
                         status:400,
                         result: "This user has an empty favourites"
                     })
                 }
             }else{
-                res.json({
+                res.status(400).json({
                     status:400,
                     result: "There is no user with that id"
                 });
@@ -518,6 +519,8 @@ router.delete('/users/:id/fav/:favouritesId', (req,res)=>{
         })
 })
 
+app.use(errorHandling)
+
 app.use((req, res)=>{
-    res.sendFile(__dirname + '/views/404.html')
+    res.status(404).sendFile(__dirname + '/views/404.html')
 })
